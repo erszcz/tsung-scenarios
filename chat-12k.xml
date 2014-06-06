@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE tsung SYSTEM "/usr/local/share/tsung/tsung-1.0.dtd">
+<tsung loglevel="info" version="1.0" dumptraffic="false">
+
+  <clients>
+    <client host="tsung-1" maxusers="200000"/>
+  </clients>
+
+  <servers>
+    <server host="mim-1" port="5222" type="tcp"/>
+  </servers>
+
+  <load>
+    <arrivalphase phase="1" duration="14400" unit="minute">
+      <users maxnumber="12000" interarrival="0.001" unit="second"></users>
+    </arrivalphase>
+  </load>
+
+  <options>
+    <option type="ts_jabber" name="global_number" value="100"></option>
+    <option type="ts_jabber" name="userid_max" value="100000"></option>
+    <option type="ts_jabber" name="domain" value="localhost"></option>
+    <option type="ts_jabber" name="username" value="user"></option>
+    <option type="ts_jabber" name="passwd" value="pass"></option>
+  </options>
+
+  <sessions>
+   <session bidi="true" probability="100" name="xmpp" type="ts_jabber">
+
+      <request subst="true">
+        <jabber type="connect" ack="no_ack"/>
+      </request>
+
+      <thinktime value="1"/>
+
+      <transaction name="auth">
+        <request><jabber type="auth_sasl" ack="local"/></request>
+        <request><jabber type="connect" ack="local"/></request>
+        <request><jabber type="auth_sasl_bind" ack="local"/></request>
+        <request><jabber type="auth_sasl_session" ack="local"/></request>
+      </transaction>
+
+      <thinktime value="1"/>
+
+      <request subst="true">
+        <jabber type="presence:initial" ack="no_ack"/>
+      </request>
+
+      <for from="1" to="100" incr="1" var="j">
+        <request subst="true">
+          <jabber type="chat" ack="no_ack" size="500" destination="online"/>
+        </request>
+        <thinktime value="5"/>
+      </for>
+
+      <request subst="true">
+        <jabber type="presence:final" ack="no_ack"/>
+      </request>
+
+  </session>
+ </sessions>
+</tsung>
